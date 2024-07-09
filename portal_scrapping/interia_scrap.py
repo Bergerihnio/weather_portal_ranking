@@ -46,7 +46,11 @@ def insert_into_db(data):
 
     for element in data:
         time = element[0]
-        formatted_time = f'{time}:00'
+        int_time = int(time)
+        if int_time < 10:
+            int_time = f'0{int_time}'
+        
+        formatted_time = f'{int_time}:00'
         temp = element[1]
 
         c.execute("INSERT INTO interia_temperatures (temperature, time) VALUES (?, ?)",
