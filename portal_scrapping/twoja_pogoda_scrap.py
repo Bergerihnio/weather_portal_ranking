@@ -1,13 +1,24 @@
 import requests
 import json
 import sqlite3
+from datetime import datetime, timedelta
 
-# https://www.twojapogoda.pl/prognoza-godzinowa-polska/mazowieckie-warszawa/?page=4
+
+# https://www.twojapogoda.pl/prognoza-godzinowa-polska/mazowieckie-warszawa/?page=3, 
+link_1 = 'https://data.twojapogoda.pl/forecasts/city/hourly/2333/3'
+# DONE https://www.twojapogoda.pl/prognoza-godzinowa-polska/mazowieckie-warszawa/?page=4 , 
+link_2 = 'https://data.twojapogoda.pl/forecasts/city/hourly/2333/4'
+# https://www.twojapogoda.pl/prognoza-godzinowa-polska/mazowieckie-warszawa/?page=5 , 
+link_3 = 'https://data.twojapogoda.pl/forecasts/city/hourly/2333/5'
 
 
-def pull_weather_data():
-    response_api = requests.get(
-        'https://data.twojapogoda.pl/forecasts/city/hourly/2333/4')
+date = datetime.now()
+future_date = date + timedelta(days=2)
+formatted_date = future_date.strftime("%d.%m.%Y")
+
+
+def pull_weather_data(link):
+    response_api = requests.get(link)
 
     if response_api.status_code != 200:
         return "ERROR"
@@ -15,6 +26,8 @@ def pull_weather_data():
     data = response_api.text
     parse_json = json.loads(data)
     
+    # 
+        
     exctract_forecast_data(parse_json)
 
 
@@ -29,10 +42,13 @@ def exctract_forecast_data(parse_json):
         # format time to create "cloudless" case
         f_forecast_time = forecast_time.replace(":00", "")
         int_forecast_time = int(f_forecast_time)
-        #####
+
 
         forecast_temp = element['temp']
         forecast_behavior = element['sign_desc']
+
+        forecast_date = element['date']
+        
 
         match forecast_behavior:
             case 'prawie bezchmurnie':
@@ -76,4 +92,6 @@ def insert_to_db(data):
 
 
 if __name__ == '__main__':
-    pull_weather_data()
+    pull_weather_data(link_1) # last 4, 8 to remove from 12
+    pull_weather_data(link_2) # all data
+    pull_weather_data(link_3) # first 3 from 12
