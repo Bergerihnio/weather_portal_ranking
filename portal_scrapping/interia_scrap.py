@@ -66,7 +66,7 @@ def scrap_behavior():
             case 'Przejściowe zachmurzenie':
                 title_text = '🌥️'
             case 'Bezchmurnie':
-                title_text = '🔵'
+                title_text = '🔵' ## AD
             case 'Zachmurzenie duże':
                 title_text = '☁️'
             case 'Zachmurzenie małe':
@@ -82,7 +82,7 @@ def scrap_behavior():
             case 'Burze z piorunami':
                 title_text = '⛈️'
             case 'Częściowo słonecznie i burze z piorunami':
-                title_text = '🌦️⛈️'
+                title_text = '⛈️'
             case _:
                 title_text = '❓'
 
