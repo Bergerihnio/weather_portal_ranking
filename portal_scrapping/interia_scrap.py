@@ -4,7 +4,7 @@ import requests, sys, sqlite3
 sys.stdout.reconfigure(encoding='utf-8')
 
 def scrap():
-    r = requests.get('https://pogoda.interia.pl/pogoda-pojutrze-blonie,cId,1689')
+    r = requests.get('https://pogoda.interia.pl/pogoda-pojutrze-warszawa,cId,36917')
 
     if r.status_code != 200:
         print(r.status_code)
