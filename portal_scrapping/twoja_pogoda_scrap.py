@@ -3,7 +3,8 @@ import json
 import sqlite3
 from datetime import datetime, timedelta
 
-
+# Due twojapogoda portal we must scrap this program beetween 3-9 PM
+ 
 # https://www.twojapogoda.pl/prognoza-godzinowa-polska/mazowieckie-warszawa/?page=3, 
 link_1 = 'https://data.twojapogoda.pl/forecasts/city/hourly/2333/3'
 # DONE https://www.twojapogoda.pl/prognoza-godzinowa-polska/mazowieckie-warszawa/?page=4 , 
@@ -14,7 +15,7 @@ link_3 = 'https://data.twojapogoda.pl/forecasts/city/hourly/2333/5'
 
 date = datetime.now()
 future_date = date + timedelta(days=2)
-formatted_date = future_date.strftime("%d.%m.%Y")
+next_2days_date = future_date.strftime("%d.%m.%Y")
 
 
 def pull_weather_data(link):
@@ -25,8 +26,6 @@ def pull_weather_data(link):
 
     data = response_api.text
     parse_json = json.loads(data)
-    
-    # 
         
     exctract_forecast_data(parse_json)
 
@@ -43,12 +42,13 @@ def exctract_forecast_data(parse_json):
         f_forecast_time = forecast_time.replace(":00", "")
         int_forecast_time = int(f_forecast_time)
 
-
         forecast_temp = element['temp']
         forecast_behavior = element['sign_desc']
 
-        forecast_date = element['date']
-        
+        forecast_mutable = element['date']
+        forecast_split = forecast_mutable.split(',')
+        forecast_date_text = forecast_split[1]
+        forecast_date = forecast_date_text.replace(" ", "", 1)
 
         match forecast_behavior:
             case 'prawie bezchmurnie':
@@ -56,7 +56,7 @@ def exctract_forecast_data(parse_json):
             case 'zachmurzenie umiarkowane':
                 forecast_behavior = '☁️'
             case 'bezchmurnie':
-                if (int_forecast_time >= 4 and int_forecast_time < 21):
+                if int_forecast_time >= 4 and int_forecast_time < 21:
                     forecast_behavior = '☀️'
                 else:
                     forecast_behavior = '🌙'
@@ -70,8 +70,8 @@ def exctract_forecast_data(parse_json):
                 forecast_behavior = '🌧️'
             case _:
                 forecast_behavior = '❓'
-
-        data.append((forecast_time, forecast_temp, forecast_behavior))
+        if forecast_date == next_2days_date:
+            data.append((forecast_time, forecast_temp, forecast_behavior))
 
     insert_to_db(data)
 
