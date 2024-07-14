@@ -12,6 +12,8 @@ def scrap():
     
     soup = BeautifulSoup(r.content, 'html.parser')
 
+    list_behave = scrap_behavior(soup)
+
     find_hours = soup.find_all('span', class_='hour')
     hours_list = []
 
@@ -28,8 +30,6 @@ def scrap():
         formatted_temp = temp.replace("°C", "")
         temp_list.append(formatted_temp)
 
-    list_behave = scrap_behavior()
-
     data = merge_data(hours_list, temp_list, list_behave)
 
     insert_into_db(data)
@@ -43,12 +43,8 @@ def merge_data(hours_list, temp_list, list_behave):
     
     return data
 
-def scrap_behavior():
-    r = requests.get('https://pogoda.interia.pl/pogoda-pojutrze-blonie,cId,1689')
-    if r.status_code != 200:
-        return 
-    
-    soup = BeautifulSoup(r.content, 'html.parser')
+def scrap_behavior(soup):
+
     find_behave = soup.find_all('span', class_='forecast-icon')
     
     list_behave = []
@@ -80,6 +76,8 @@ def scrap_behavior():
             case 'Przelotne opady':
                 title_text = '🌦️'
             case 'Burze z piorunami':
+                title_text = '⛈️'
+            case 'Zachmurzenie duże i burze z piorunami':
                 title_text = '⛈️'
             case 'Częściowo słonecznie i burze z piorunami':
                 title_text = '⛈️'
