@@ -1,15 +1,19 @@
 from bs4 import BeautifulSoup
-import requests, sys, sqlite3
+import requests
+import sys
+import sqlite3
 
 sys.stdout.reconfigure(encoding='utf-8')
 
+
 def scrap():
-    r = requests.get('https://pogoda.interia.pl/pogoda-pojutrze-warszawa,cId,36917')
+    r = requests.get(
+        'https://pogoda.interia.pl/pogoda-pojutrze-warszawa,cId,36917')
 
     if r.status_code != 200:
         print(r.status_code)
         return
-    
+
     soup = BeautifulSoup(r.content, 'html.parser')
 
     find_hours = soup.find_all('span', class_='hour')
@@ -18,7 +22,6 @@ def scrap():
     for hours in find_hours:
         hour = hours.get_text(strip=True)
         hours_list.append(hour)
-    
 
     find_temp = soup.find_all('span', class_='forecast-temp')
     temp_list = []
@@ -34,18 +37,20 @@ def scrap():
 
     insert_into_db(data)
 
+
 def merge_data(hours_list, temp_list, list_behave):
     data = []
 
     for score in zip(hours_list, temp_list, list_behave):
         data.append(score)
-    
+
     return data
 
+
 def scrap_behavior(soup, hours_list):
-    
+
     find_behave = soup.find_all('span', class_='forecast-icon')
-    
+
     list_behave = []
 
     for index, title in enumerate(find_behave):
@@ -64,7 +69,7 @@ def scrap_behavior(soup, hours_list):
                 title_text = '🌥️'
             case 'Bezchmurnie':
                 if (hour_int >= 4 and hour_int < 21):
-                    title_text = '☀️' 
+                    title_text = '☀️'
                 else:
                     title_text = '🌙'
             case 'Zachmurzenie duże':
@@ -74,7 +79,7 @@ def scrap_behavior(soup, hours_list):
             case 'Zachmurzenie umiarkowane':
                 title_text = '☁️'
             case 'Pochmurno':
-                title_text = '☁️' 
+                title_text = '☁️'
             case 'Deszcz':
                 title_text = '🌧️'
             case 'Przelotne opady':
@@ -92,26 +97,26 @@ def scrap_behavior(soup, hours_list):
 
     return list_behave
 
+
 def insert_into_db(data):
     conn = sqlite3.connect('interia.db')
     c = conn.cursor()
-    
+
     for element in data:
         time = element[0]
         int_time = int(time)
         if int_time < 10:
             int_time = f'0{int_time}'
-        
+
         formatted_time = f'{int_time}:00'
         temp = element[1]
         emoji = element[2]
 
         c.execute("INSERT INTO interia (temperature, time, emoji) VALUES (?, ?, ?)",
-                (temp, formatted_time, emoji))
+                  (temp, formatted_time, emoji))
         conn.commit()
     conn.close()
 
+
 if __name__ == '__main__':
     scrap()
-
-

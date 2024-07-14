@@ -1,17 +1,22 @@
-import requests, json, sqlite3
+import requests
+import json
+import sqlite3
 
- # https://www.twojapogoda.pl/prognoza-godzinowa-polska/mazowieckie-warszawa/?page=4
+# https://www.twojapogoda.pl/prognoza-godzinowa-polska/mazowieckie-warszawa/?page=4
+
 
 def pull_weather_data():
-    response_api = requests.get('https://data.twojapogoda.pl/forecasts/city/hourly/2333/4')
+    response_api = requests.get(
+        'https://data.twojapogoda.pl/forecasts/city/hourly/2333/4')
 
     if response_api.status_code != 200:
         return "ERROR"
-    
+
     data = response_api.text
     parse_json = json.loads(data)
-    # print(parse_json)
+    
     exctract_forecast_data(parse_json)
+
 
 def exctract_forecast_data(parse_json):
     forecast = parse_json['forecasts']
@@ -36,7 +41,7 @@ def exctract_forecast_data(parse_json):
                 forecast_behavior = '☁️'
             case 'bezchmurnie':
                 if (int_forecast_time >= 4 and int_forecast_time < 21):
-                    forecast_behavior = '☀️' 
+                    forecast_behavior = '☀️'
                 else:
                     forecast_behavior = '🌙'
             case 'zachmurzenie małe':
@@ -49,10 +54,11 @@ def exctract_forecast_data(parse_json):
                 forecast_behavior = '🌧️'
             case _:
                 forecast_behavior = '❓'
-            
+
         data.append((forecast_time, forecast_temp, forecast_behavior))
 
     insert_to_db(data)
+
 
 def insert_to_db(data):
     conn = sqlite3.connect('twoja_pogoda.db')
@@ -63,9 +69,11 @@ def insert_to_db(data):
         temp = element[1]
         emoji = element[2]
 
-        c.execute("INSERT INTO twoja_pogoda (temperature, time, emoji) VALUES (?, ?, ?)", (temp, time, emoji))
+        c.execute(
+            "INSERT INTO twoja_pogoda (temperature, time, emoji) VALUES (?, ?, ?)", (temp, time, emoji))
         conn.commit()
     conn.close
+
 
 if __name__ == '__main__':
     pull_weather_data()
