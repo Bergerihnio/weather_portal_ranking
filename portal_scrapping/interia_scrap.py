@@ -12,8 +12,6 @@ def scrap():
     
     soup = BeautifulSoup(r.content, 'html.parser')
 
-    list_behave = scrap_behavior(soup)
-
     find_hours = soup.find_all('span', class_='hour')
     hours_list = []
 
@@ -30,12 +28,13 @@ def scrap():
         formatted_temp = temp.replace("°C", "")
         temp_list.append(formatted_temp)
 
+    list_behave = scrap_behavior(soup, hours_list)
+
     data = merge_data(hours_list, temp_list, list_behave)
 
     insert_into_db(data)
 
 def merge_data(hours_list, temp_list, list_behave):
-
     data = []
 
     for score in zip(hours_list, temp_list, list_behave):
@@ -43,14 +42,16 @@ def merge_data(hours_list, temp_list, list_behave):
     
     return data
 
-def scrap_behavior(soup):
-
+def scrap_behavior(soup, hours_list):
+    
     find_behave = soup.find_all('span', class_='forecast-icon')
     
     list_behave = []
 
-    for title in find_behave:
+    for index, title in enumerate(find_behave):
         title_text = title.get('title')
+        hour_str = hours_list[index]
+        hour_int = int(hour_str)
 
         match title_text:
             case 'Słonecznie':
@@ -62,7 +63,10 @@ def scrap_behavior(soup):
             case 'Przejściowe zachmurzenie':
                 title_text = '🌥️'
             case 'Bezchmurnie':
-                title_text = '🔵' ## AD
+                if (hour_int >= 4 and hour_int < 21):
+                    title_text = '☀️' 
+                else:
+                    title_text = '🌙'
             case 'Zachmurzenie duże':
                 title_text = '☁️'
             case 'Zachmurzenie małe':
