@@ -91,7 +91,7 @@ def scrap_behavior():
     return list_behave
 
 def insert_into_db(data):
-    conn = sqlite3.connect('interia_temperatures.db')
+    conn = sqlite3.connect('interia.db')
     c = conn.cursor()
     
     for element in data:
@@ -104,12 +104,10 @@ def insert_into_db(data):
         temp = element[1]
         emoji = element[2]
 
-        c.execute("INSERT INTO interia_temperatures (temperature, time, emoji) VALUES (?, ?, ?)",
+        c.execute("INSERT INTO interia (temperature, time, emoji) VALUES (?, ?, ?)",
                 (temp, formatted_time, emoji))
         conn.commit()
     conn.close()
-
-
 
 if __name__ == '__main__':
     scrap()
