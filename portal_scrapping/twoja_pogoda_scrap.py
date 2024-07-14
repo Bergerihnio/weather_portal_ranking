@@ -1,4 +1,4 @@
-import requests, json
+import requests, json, sqlite3
 
  # https://www.twojapogoda.pl/prognoza-godzinowa-polska/mazowieckie-warszawa/?page=4
 
@@ -31,12 +31,12 @@ def exctract_forecast_data(parse_json):
 
         match forecast_behavior:
             case 'prawie bezchmurnie':
-                forecast_behavior = '☁️☀️'
+                forecast_behavior = '⛅'
             case 'zachmurzenie umiarkowane':
                 forecast_behavior = '☁️'
             case 'bezchmurnie':
                 if (int_forecast_time >= 4 and int_forecast_time < 21):
-                    forecast_behavior = '☀️' #ADD
+                    forecast_behavior = '☀️' 
                 else:
                     forecast_behavior = '🌙'
             case 'zachmurzenie małe':
@@ -53,11 +53,19 @@ def exctract_forecast_data(parse_json):
         data.append((forecast_time, forecast_temp, forecast_behavior))
 
     insert_to_db(data)
-    print(data)
 
 def insert_to_db(data):
-    
+    conn = sqlite3.connect('twoja_pogoda.db')
+    c = conn.cursor()
 
+    for element in data:
+        time = element[0]
+        temp = element[1]
+        emoji = element[2]
+
+        c.execute("INSERT INTO twoja_pogoda (temperature, time, emoji) VALUES (?, ?, ?)", (temp, time, emoji))
+        conn.commit()
+    conn.close
 
 if __name__ == '__main__':
     pull_weather_data()
