@@ -14,6 +14,8 @@ c.execute('''CREATE TABLE IF NOT EXISTS interia
 conn.commit()
 conn.close()
 
+###################################
+
 conn = sqlite3.connect('twoja_pogoda.db')
 c = conn.cursor()
 

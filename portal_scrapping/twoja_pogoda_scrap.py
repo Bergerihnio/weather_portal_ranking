@@ -3,7 +3,7 @@ import json
 import sqlite3
 from datetime import datetime, timedelta
 
-# Due twojapogoda portal we must scrap this program beetween 3-9 PM
+# Due twojapogoda portal architecture we must run this program beetween 1-9 PM
  
 # https://www.twojapogoda.pl/prognoza-godzinowa-polska/mazowieckie-warszawa/?page=3, 
 link_1 = 'https://data.twojapogoda.pl/forecasts/city/hourly/2333/3'
@@ -56,7 +56,7 @@ def exctract_forecast_data(parse_json):
             case 'zachmurzenie umiarkowane':
                 forecast_behavior = '☁️'
             case 'bezchmurnie':
-                if int_forecast_time >= 4 and int_forecast_time < 21:
+                if (int_forecast_time >= 4) and (int_forecast_time < 21):
                     forecast_behavior = '☀️'
                 else:
                     forecast_behavior = '🌙'

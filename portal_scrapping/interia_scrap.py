@@ -68,7 +68,7 @@ def scrap_behavior(soup, hours_list):
             case 'Przejściowe zachmurzenie':
                 title_text = '🌥️'
             case 'Bezchmurnie':
-                if (hour_int >= 4 and hour_int < 21):
+                if (hour_int >= 4) and (hour_int < 21):
                     title_text = '☀️'
                 else:
                     title_text = '🌙'
