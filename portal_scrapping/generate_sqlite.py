@@ -31,3 +31,16 @@ conn.commit()
 conn.close()
 
 
+conn = sqlite3.connect('wp.db')
+c = conn.cursor()
+
+c.execute('''CREATE TABLE IF NOT EXISTS wp
+        (temperature INTEGER,
+        time TEXT DATETIME,
+        emoji TEXT,
+        date TEXT DEFAULT (date('now', '+2 days')),
+        currently_date TEXT DEFAULT (date('now')))''')
+
+conn.commit()
+conn.close()
+
