@@ -56,7 +56,7 @@ def scrap_behavior(soup, hours_list):
     for index, title in enumerate(find_behave):
         title_text = title.get('title')
         hour_str = hours_list[index]
-        hour_int = int(hour_str)
+        int_hour = int(hour_str)
 
         match title_text:
             case 'Słonecznie':
@@ -68,7 +68,7 @@ def scrap_behavior(soup, hours_list):
             case 'Przejściowe zachmurzenie':
                 title_text = '🌥️'
             case 'Bezchmurnie':
-                if (hour_int >= 4) and (hour_int < 21):
+                if (int_hour >= 4) and (int_hour < 21):
                     title_text = '☀️'
                 else:
                     title_text = '🌙'

@@ -1,8 +1,9 @@
 from bs4 import BeautifulSoup
-import requests, sys, re
+import requests, sys, re, sqlite3
 
 sys.stdout.reconfigure(encoding='utf-8')
 
+# Due wp portal architecture we must run this program on 01:00 (at night)
 
 def scrap():
     r = requests.get('https://pogoda.wp.pl/pogoda-na-dzis/warszawa/756135')
@@ -40,7 +41,8 @@ def scrap():
     next_2_days_behavior = behavior_list[48:72]
 
     emoji_list = weather_behavior_emoji(next_2_days_behavior, next_2_days_hour)
-    print(len(emoji_list))
+    
+    insert_into_db(emoji_list, next_2_days_temp, next_2_days_hour)
 
 def weather_behavior_emoji(next_2_days_behavior, next_2_days_hour):
     emoji_list = []
@@ -90,6 +92,20 @@ def weather_behavior_emoji(next_2_days_behavior, next_2_days_hour):
         emoji_list.append(emoji)
 
     return emoji_list
+
+def insert_into_db(emoji_list, next_2_days_temp, next_2_days_hour):
+
+    conn = sqlite3.connect('wp.db')
+    c = conn.cursor()
+
+    for emoji, temp, time in zip(emoji_list, next_2_days_temp, next_2_days_hour):
+        formatted_temp = temp.replace("°C", "")
+        
+        c.execute("INSERT INTO wp (temperature, time, emoji) VALUES (?, ?, ?)",
+                  (formatted_temp, time, emoji))
+        conn.commit()
+    conn.close()
+
 
 if __name__ == '__main__':
     scrap()
