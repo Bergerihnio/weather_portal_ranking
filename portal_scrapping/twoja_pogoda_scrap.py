@@ -90,8 +90,10 @@ def insert_to_db(data):
         conn.commit()
     conn.close
 
-
-if __name__ == '__main__':
+def scrap():
     pull_weather_data(link_1) # last 4, 8 to remove from 12
     pull_weather_data(link_2) # all data
     pull_weather_data(link_3) # first 3 from 12
+
+if __name__ == '__main__':
+    scrap()
