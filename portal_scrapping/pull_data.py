@@ -51,15 +51,15 @@ def compare_data():
 
     interia_temp = data_interia[hour_index][0]
     interia_emoji = data_interia[hour_index][1]
-    interia_date = data_interia[hour_index][2]
+    # interia_date = data_interia[hour_index][2]
 
     wp_temp = data_wp[hour_index][0]
     wp_emoji = data_wp[hour_index][1]
-    wp_date = data_wp[hour_index][2]
+    # wp_date = data_wp[hour_index][2]
 
     twoja_pogoda_temp = data_twoja_pogoda[hour_index][0]
     twoja_pogoda_emoji = data_twoja_pogoda[hour_index][1]
-    twoja_pogoda_date = data_twoja_pogoda[hour_index][2]
+    # twoja_pogoda_date = data_twoja_pogoda[hour_index][2]
 
     print(f'\nPrawdziwa Temperatura: {int_temp} \nPogoda: {emoji}  \nGodzina: { hour}\n')
 
@@ -99,7 +99,7 @@ def compare_data():
 # create new db with scoring
 
 scheduler.start()
-# compare_data()
+
 
 try:
     while True:
