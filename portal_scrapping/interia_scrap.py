@@ -75,9 +75,9 @@ def scrap_behavior(soup, hours_list):
             case 'Zachmurzenie duże':
                 title_text = '☁️'
             case 'Zachmurzenie małe':
-                title_text = '☁️'
+                title_text = '⛅'
             case 'Zachmurzenie umiarkowane':
-                title_text = '☁️'
+                title_text = '⛅'
             case 'Pochmurno':
                 title_text = '☁️'
             case 'Deszcz':

@@ -52,22 +52,22 @@ def exctract_forecast_data(parse_json):
 
         match forecast_behavior:
             case 'prawie bezchmurnie':
-                forecast_behavior = '⛅'
+                forecast_behavior = '🌤️' 
             case 'zachmurzenie umiarkowane':
-                forecast_behavior = '☁️'
+                forecast_behavior = '⛅'
             case 'bezchmurnie':
                 if (int_forecast_time >= 4) and (int_forecast_time < 21):
                     forecast_behavior = '☀️'
                 else:
                     forecast_behavior = '🌙'
             case 'zachmurzenie małe':
-                forecast_behavior = '☁️'
+                forecast_behavior = '⛅'
             case 'burza z deszczem':
                 forecast_behavior = '⛈️'
-            case 'zachmurzenie małe':
-                forecast_behavior = '☁️'
             case 'deszcz':
                 forecast_behavior = '🌧️'
+            case 'pochmurno':
+                forecast_behavior = '☁️'
             case _:
                 forecast_behavior = '❓'
         if forecast_date == next_2days_date:
@@ -94,6 +94,6 @@ def scrap():
     pull_weather_data(link_1) # last 4, 8 to remove from 12
     pull_weather_data(link_2) # all data
     pull_weather_data(link_3) # first 3 from 12
-
+    
 if __name__ == '__main__':
     scrap()

@@ -55,7 +55,7 @@ def scrap_data():
         case _:
             behavior_title = '❓'
 
-    return f_temp, behavior_title
+    return f_temp, behavior_title, hour
     
 
 if __name__ == '__main__':
