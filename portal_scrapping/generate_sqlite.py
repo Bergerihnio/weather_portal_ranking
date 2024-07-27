@@ -44,14 +44,16 @@ c.execute('''CREATE TABLE IF NOT EXISTS wp
 conn.commit()
 conn.close()
 
-conn = sqlite3.connect('general.db')
+conn = sqlite3.connect('general_scoring.db')
 c = conn.cursor()
 
-c.execute('''CREATE TABLE IF NOT EXISTS wp
-        (temperature INTEGER,
-        time TEXT DATETIME,
+c.execute('''CREATE TABLE IF NOT EXISTS general_scoring (
+        temperature INTEGER,
         emoji TEXT,
-        date TEXT DEFAULT (date('now', '+2 days')),
+        portal_name TEXT,
+        portal_emoji TEXT,
+        closest_temperature INTEGER,
+        time TEXT DEFAULT (time('now', 'localtime')),
         currently_date TEXT DEFAULT (date('now')))''')
 
 conn.commit()
