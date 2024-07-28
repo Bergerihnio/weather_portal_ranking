@@ -3,7 +3,7 @@ import requests, sys, re, sqlite3
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-# Due wp portal architecture we must run this program on 01:00 (at night)
+# Due wp portal architecture we must run this program on 02:00 (at night)
 
 def scrap():
     r = requests.get('https://pogoda.wp.pl/pogoda-na-dzis/warszawa/756135')
@@ -59,7 +59,7 @@ def weather_behavior_emoji(next_2_days_behavior, next_2_days_hour):
                 emoji = '🌥️'
             case 'Prawie bezchmurnie':
                 if 4 <= int_hour < 21:
-                    emoji = '☀️'
+                    emoji = '🌤️'
                 else:
                     emoji = '🌙'
             case 'Bezchmurnie, słonecznie':

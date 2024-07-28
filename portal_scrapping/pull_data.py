@@ -8,7 +8,7 @@ scheduler = BackgroundScheduler()
 def wp_pull_data():
     wp_scrap.scrap()
 
-@scheduler.scheduled_job('cron', hour=13, minute=1)
+@scheduler.scheduled_job('cron', hour=14, minute=30)
 def others_pull_data():
     twoja_pogoda_scrap.scrap()
     interia_scrap.scrap()
@@ -43,10 +43,10 @@ def download_data():
 
 @scheduler.scheduled_job('cron', minute='0')
 def compare_data():
-    temp, emoji, hour = interia_actual_data.scrap_data()
+    real_temp, real_emoji, hour = interia_actual_data.scrap_data()
     data_interia, data_wp, data_twoja_pogoda = download_data()
 
-    int_temp = int(temp)
+    real_int_temp = int(real_temp)
     hour_index = hour
 
     interia_temp = data_interia[hour_index][0]
@@ -61,15 +61,16 @@ def compare_data():
     twoja_pogoda_emoji = data_twoja_pogoda[hour_index][1]
     # twoja_pogoda_date = data_twoja_pogoda[hour_index][2]
 
-    print(f'\nPrawdziwa Temperatura: {int_temp} \nPogoda: {emoji}  \nGodzina: { hour}\n')
+    print(f'\nPrawdziwa Temperatura: {real_int_temp} \nPogoda: {real_emoji}  \nGodzina: { hour}\n')
 
-    diff_interia_temp = abs(interia_temp - int_temp)
-    diff_wp_temp = abs(wp_temp - int_temp)
-    diff_twoja_pogoda_temp = abs(twoja_pogoda_temp - int_temp)
+    diff_interia_temp = abs(interia_temp - real_int_temp)
+    diff_wp_temp = abs(wp_temp - real_int_temp)
+    diff_twoja_pogoda_temp = abs(twoja_pogoda_temp - real_int_temp)
 
     min_diff = min(diff_interia_temp, diff_wp_temp, diff_twoja_pogoda_temp)
 
     closest_sources = []
+
     if diff_interia_temp == min_diff:
         closest_sources.append("Interia")
         closest_temperature = interia_temp
@@ -87,10 +88,34 @@ def compare_data():
         closest_source = ", ".join(closest_sources[:len(closest_sources)])
         print(closest_source, '\nróżnica z danymi na żywo:' ,min_diff,'°C')
     
+    # emojeeees = wp_emoji + interia_emoji + twoja_pogoda_emoji + real_emoji
+    # print(emojeeees)
+
+    closest_sources_emoji = []
+    closest_sources_name_emoji = []
+    if real_emoji == interia_emoji:
+        closest_sources_emoji.append(interia_emoji)
+        closest_sources_name_emoji.append('Interia')
+    if real_emoji == wp_emoji:
+        closest_sources_emoji.append(wp_emoji)
+        closest_sources_name_emoji.append('WP')
+    if real_emoji == twoja_pogoda_emoji:
+        closest_sources_emoji.append(twoja_pogoda_emoji)
+        closest_sources_name_emoji.append('Twoja pogoda')
+
+    if len(closest_sources_emoji) == 1 and len(closest_sources_name_emoji) == 1:
+        closest_source_emoji = closest_sources_emoji[0]
+        closest_source_name_emoji = closest_sources_name_emoji[0]
+    else:
+        closest_source_emoji = ", ".join(closest_sources_emoji[:len(closest_sources_emoji)])
+        closest_source_name_emoji = ", ".join(closest_sources_name_emoji[:len(closest_sources_emoji)])
+    
+    print(closest_sources_emoji)
+    
     conn = sqlite3.connect('general_scoring.db')
     c = conn.cursor()
 
-    c.execute("INSERT INTO general_scoring (temperature, emoji, portal_name, closest_temperature) VALUES (?, ?, ?, ?)", (int_temp, emoji, closest_source, closest_temperature))
+    c.execute("INSERT INTO general_scoring (real_temperature, real_emoji, the_closest_temp_portal_name, the_closest_emoji_portal_name, portal_emoji, closest_temperature) VALUES (?, ?, ?, ?, ?, ?)", (real_int_temp, real_emoji, closest_source, closest_source_name_emoji ,closest_source_emoji, closest_temperature))
 
     conn.commit()
     conn.close

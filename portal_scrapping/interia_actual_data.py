@@ -43,7 +43,7 @@ def scrap_data():
         case 'Zachmurzenie umiarkowane':
             behavior_title = '☁️'
         case 'Pochmurno':
-            behavior_title = '🌫️'
+            behavior_title = '☁️'
         case 'Deszcz':
             behavior_title = '🌧️'
         case 'Przelotne opady':
