@@ -52,18 +52,16 @@ c.execute('''CREATE TABLE IF NOT EXISTS general_scoring
         real_emoji TEXT,
         the_closest_temp_portal_name TEXT,
         closest_temperature INTEGER,
+        min_difference INTEGER,
         the_closest_emoji_portal_name TEXT,  
         portal_emoji TEXT,
         time TEXT DEFAULT (time('now', 'localtime')),
         currently_date TEXT DEFAULT (date('now')))''')
 
-c.execute('''CREATE TABLE IF NOT EXISTS general_scoring 
-        (real_temperature INTEGER,
-        real_emoji TEXT,
-        the_closest_temp_portal_name TEXT,
-        closest_temperature INTEGER,
-        the_closest_emoji_portal_name TEXT,  
-        portal_emoji TEXT,
+c.execute('''CREATE TABLE IF NOT EXISTS scoring 
+        (wp_scoring INTEGER,
+        interia_scoring INTEGER,
+        twoja_pogoda_scoring INTEGER,
         time TEXT DEFAULT (time('now', 'localtime')),
         currently_date TEXT DEFAULT (date('now')))''')
 

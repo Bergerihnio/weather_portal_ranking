@@ -8,7 +8,7 @@ scheduler = BackgroundScheduler()
 def wp_pull_data():
     wp_scrap.scrap()
 
-@scheduler.scheduled_job('cron', hour=14, minute=30)
+@scheduler.scheduled_job('cron', hour=13, minute=1)
 def others_pull_data():
     twoja_pogoda_scrap.scrap()
     interia_scrap.scrap()
@@ -17,25 +17,22 @@ def download_data():
 
     conn = sqlite3.connect('wp.db')
     c = conn.cursor()
-    c.execute("SELECT temperature, emoji, time, date FROM wp ORDER BY date ASC LIMIT 24")
+    c.execute("SELECT temperature, emoji, time, date FROM wp WHERE date = date('now') ORDER BY date ASC")
     data_wp = c.fetchall()
-    date_wp = data_wp[0][3]
     # print(f'WP prediction for date {date_wp} \n{data_wp}')
     conn.close()
 
     conn = sqlite3.connect('twoja_pogoda.db')
     c = conn.cursor()
-    c.execute("SELECT temperature, emoji, time, date FROM twoja_pogoda ORDER BY date ASC LIMIT 24")
+    c.execute("SELECT temperature, emoji, time, date FROM twoja_pogoda WHERE date = date('now') ORDER BY date ASC")
     data_twoja_pogoda = c.fetchall()
-    date_twoja_pogoda = data_twoja_pogoda[0][3]
     # print(f'\nTwoja Pogoda for date {date_twoja_pogoda} \n{data_twoja_pogoda}')
     conn.close()
 
     conn = sqlite3.connect('interia.db')
     c = conn.cursor()
-    c.execute("SELECT temperature, emoji, time, date FROM interia ORDER BY date ASC LIMIT 24")
+    c.execute("SELECT temperature, emoji, time, date FROM interia WHERE date = date('now') ORDER BY date ASC")
     data_interia = c.fetchall()
-    date_interia = data_interia[0][3]
     # print(f'\nInteria pogoda date {date_interia} \n{data_interia}')
     conn.close()
 
@@ -51,17 +48,14 @@ def compare_data():
 
     interia_temp = data_interia[hour_index][0]
     interia_emoji = data_interia[hour_index][1]
-    # interia_date = data_interia[hour_index][2]
 
     wp_temp = data_wp[hour_index][0]
     wp_emoji = data_wp[hour_index][1]
-    # wp_date = data_wp[hour_index][2]
 
     twoja_pogoda_temp = data_twoja_pogoda[hour_index][0]
     twoja_pogoda_emoji = data_twoja_pogoda[hour_index][1]
-    # twoja_pogoda_date = data_twoja_pogoda[hour_index][2]
 
-    print(f'\nPrawdziwa Temperatura: {real_int_temp} \nPogoda: {real_emoji}  \nGodzina: { hour}\n')
+    # print(f'\nPrawdziwa Temperatura: {real_int_temp} \nPogoda: {real_emoji}  \nGodzina: { hour}\n')
 
     diff_interia_temp = abs(interia_temp - real_int_temp)
     diff_wp_temp = abs(wp_temp - real_int_temp)
@@ -70,7 +64,6 @@ def compare_data():
     min_diff = min(diff_interia_temp, diff_wp_temp, diff_twoja_pogoda_temp)
 
     closest_sources = []
-
     if diff_interia_temp == min_diff:
         closest_sources.append("Interia")
         closest_temperature = interia_temp
@@ -83,14 +76,11 @@ def compare_data():
 
     if len(closest_sources) == 1:
         closest_source = closest_sources[0]
-        print(closest_source, '\nróżnica z danymi na żywo:' ,min_diff,'°C')
+        #print(closest_source, '\nróżnica z danymi na żywo:' ,min_diff,'°C')
     else:
         closest_source = ", ".join(closest_sources[:len(closest_sources)])
-        print(closest_source, '\nróżnica z danymi na żywo:' ,min_diff,'°C')
+        #print(closest_source, '\nróżnica z danymi na żywo:' ,min_diff,'°C')
     
-    # emojeeees = wp_emoji + interia_emoji + twoja_pogoda_emoji + real_emoji
-    # print(emojeeees)
-
     closest_sources_emoji = []
     closest_sources_name_emoji = []
     if real_emoji == interia_emoji:
@@ -109,22 +99,42 @@ def compare_data():
     else:
         closest_source_emoji = ", ".join(closest_sources_emoji[:len(closest_sources_emoji)])
         closest_source_name_emoji = ", ".join(closest_sources_name_emoji[:len(closest_sources_emoji)])
-    
-    print(closest_sources_emoji)
-    
+        
     conn = sqlite3.connect('general_scoring.db')
     c = conn.cursor()
 
-    c.execute("INSERT INTO general_scoring (real_temperature, real_emoji, the_closest_temp_portal_name, the_closest_emoji_portal_name, portal_emoji, closest_temperature) VALUES (?, ?, ?, ?, ?, ?)", (real_int_temp, real_emoji, closest_source, closest_source_name_emoji ,closest_source_emoji, closest_temperature))
+    c.execute("INSERT INTO general_scoring (real_temperature, real_emoji, the_closest_temp_portal_name, the_closest_emoji_portal_name, portal_emoji, closest_temperature, min_difference) VALUES (?, ?, ?, ?, ?, ?, ?)", (real_int_temp, real_emoji, closest_source, closest_source_name_emoji ,closest_source_emoji, closest_temperature, min_diff))
 
     conn.commit()
     conn.close
-    
-# insert to db: the best portals, time, data, emoji, 
+
+    scoring(closest_source, closest_temperature, min_diff, closest_source_name_emoji, closest_source_emoji)
+
 # create new db with scoring
+def scoring(closest_source: str, closest_temperature: int, min_diff: int, closest_source_name_emoji: str, closest_source_emoji: str):
+    
+    print(f"Closest source: {closest_source}")
+    print(f"Closest temperature: {closest_temperature}")
+    print(f"Minimum difference: {min_diff}")
+    print(f"Closest source name for emoji: {closest_source_name_emoji}")
+    print(f"Closest source emoji: {closest_source_emoji}")
+
+    sources_list = closest_source.split(',')
+    sources_list_len = 
+
+    # conn = sqlite3.connect('general_scoring.db')
+    # c = conn.cursor()
+    # c.execute("INSERT INTO scoring () VALUES ()", ())
+
+    # conn.commit()
+    # conn.close
+
+    return
+
 
 scheduler.start()
 
+# compare_data()
 
 try:
     while True:
