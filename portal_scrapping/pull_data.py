@@ -23,20 +23,22 @@ def download_data():
     c = conn.cursor()
 
     c.execute(
-        "SELECT temperature, emoji, time, date FROM wp WHERE date = date('now') ORDER BY date ASC")
+        "SELECT temperature, emoji, time, date FROM wp WHERE date = date('now', '+2 days') ORDER BY date ASC") #+2 days for test
     data_wp = c.fetchall()
-    # print(f'WP prediction for date {date_wp} \n{data_wp}')
+
     c.execute(
-        "SELECT temperature, emoji, time, date FROM twoja_pogoda WHERE date = date('now') ORDER BY date ASC")
+        "SELECT temperature, emoji, time, date FROM twoja_pogoda WHERE date = date('now', '+2 days') ORDER BY date ASC") #+2 days for test
     data_twoja_pogoda = c.fetchall()
-    # print(f'\nTwoja Pogoda for date {date_twoja_pogoda} \n{data_twoja_pogoda}')
+
     c.execute(
-        "SELECT temperature, emoji, time, date FROM interia WHERE date = date('now') ORDER BY date ASC")
+        "SELECT temperature, emoji, time, date FROM interia WHERE date = date('now', '+2 days') ORDER BY date ASC") #+2 days for test
     data_interia = c.fetchall()
-    # print(f'\nInteria pogoda date {date_interia} \n{data_interia}')
+
     conn.close()
 
     return data_interia, data_wp, data_twoja_pogoda
+
+download_data()
 
 @scheduler.scheduled_job('cron', minute='0')
 def compare_data():
@@ -52,15 +54,14 @@ def compare_data():
     wp_temp = data_wp[hour_index][0]
     wp_emoji = data_wp[hour_index][1]
 
-    # twoja_pogoda_temp = data_twoja_pogoda[hour_index][0]
-    # twoja_pogoda_emoji = data_twoja_pogoda[hour_index][1]
-
+    twoja_pogoda_temp = data_twoja_pogoda[hour_index][0]
+    twoja_pogoda_emoji = data_twoja_pogoda[hour_index][1]
 
     diff_interia_temp = abs(interia_temp - real_int_temp)
     diff_wp_temp = abs(wp_temp - real_int_temp)
-    # diff_twoja_pogoda_temp = abs(twoja_pogoda_temp - real_int_temp)
+    diff_twoja_pogoda_temp = abs(twoja_pogoda_temp - real_int_temp)
 
-    min_diff = min(diff_interia_temp, diff_wp_temp)  # ,diff_twoja_pogoda_temp)
+    min_diff = min(diff_interia_temp, diff_wp_temp, diff_twoja_pogoda_temp)
 
     closest_sources = []
     if diff_interia_temp == min_diff:
@@ -69,16 +70,14 @@ def compare_data():
     if diff_wp_temp == min_diff:
         closest_sources.append("WP")
         closest_temperature = wp_temp
-    # if diff_twoja_pogoda_temp == min_diff:
-    #     closest_sources.append("Twoja pogoda")
-    #     closest_temperature = twoja_pogoda_temp
+    if diff_twoja_pogoda_temp == min_diff:
+        closest_sources.append("Twoja pogoda")
+        closest_temperature = twoja_pogoda_temp
 
     if len(closest_sources) == 1:
         closest_source = closest_sources[0]
-        # print(closest_source, '\nróżnica z danymi na żywo:' ,min_diff,'°C')
     else:
         closest_source = ", ".join(closest_sources[:len(closest_sources)])
-        # print(closest_source, '\nróżnica z danymi na żywo:' ,min_diff,'°C')
 
     closest_sources_emoji = []
     closest_sources_name_emoji = []
@@ -88,9 +87,9 @@ def compare_data():
     if real_emoji == wp_emoji:
         closest_sources_emoji.append(wp_emoji)
         closest_sources_name_emoji.append('WP')
-    # if real_emoji == twoja_pogoda_emoji:
-    #     closest_sources_emoji.append(twoja_pogoda_emoji)
-    #     closest_sources_name_emoji.append('Twoja pogoda')
+    if real_emoji == twoja_pogoda_emoji:
+        closest_sources_emoji.append(twoja_pogoda_emoji)
+        closest_sources_name_emoji.append('Twoja pogoda')
 
     if len(closest_sources_emoji) == 1 and len(closest_sources_name_emoji) == 1:
         closest_source_emoji = closest_sources_emoji[0]
