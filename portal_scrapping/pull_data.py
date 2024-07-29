@@ -13,7 +13,6 @@ scheduler = BackgroundScheduler()
 def wp_pull_data():
     wp_scrap.scrap()
 
-
 @scheduler.scheduled_job('cron', hour=13, minute=1)
 def others_pull_data():
     twoja_pogoda_scrap.scrap()
@@ -185,11 +184,9 @@ def scoring(closest_source: str, closest_temperature: int, min_diff: int, closes
 
     return
 
-
 scheduler.start()
 
 # compare_data()
-
 
 try:
     while True:
