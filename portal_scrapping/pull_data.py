@@ -102,6 +102,7 @@ def compare_data():
         closest_source_emoji = "❌"
         closest_source_name_emoji = "❌"
 
+
     conn = sqlite3.connect('general_scoring.db')
     c = conn.cursor()
 
@@ -127,6 +128,17 @@ def scoring(closest_source: str, min_diff: int, closest_source_name_emoji: str, 
     interia_scoring = db_points[1]
     twoja_pogoda_scoring = db_points[2]
 
+    c.execute("SELECT the_closest_emoji_portal_name FROM general_scoring ORDER BY currently_date DESC, time DESC")
+    portal_emoji_name_tuple = c.fetchone()
+
+    for name in portal_emoji_name_tuple:
+        if name == 'WP':
+            wp_scoring += 25
+        elif name == 'Twoja pogoda':
+            twoja_pogoda_scoring += 25
+        elif name == 'Interia':
+            interia_scoring += 25
+
     if min_diff == 0:
         points = 10
     elif min_diff == 1:
@@ -148,7 +160,7 @@ def scoring(closest_source: str, min_diff: int, closest_source_name_emoji: str, 
     sources_list_len = len(sources_list)
 
     for i in range(sources_list_len):
-        # print(sources_list[i])
+
         if sources_list[i] == 'WP':
             wp_scoring += points
         elif sources_list[i] == 'Twoja pogoda':
@@ -157,15 +169,12 @@ def scoring(closest_source: str, min_diff: int, closest_source_name_emoji: str, 
             interia_scoring += points
         else:
             print("No portal is accurate")
-            return
 
     c.execute("INSERT INTO scoring (wp_scoring, interia_scoring, twoja_pogoda_scoring) VALUES (?, ?, ?)",
               (wp_scoring, interia_scoring, twoja_pogoda_scoring))
 
     conn.commit()
     conn.close
-
-    return
 
 scheduler.start()
 
