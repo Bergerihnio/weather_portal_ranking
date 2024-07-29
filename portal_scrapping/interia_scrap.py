@@ -99,7 +99,7 @@ def scrap_behavior(soup, hours_list):
 
 
 def insert_into_db(data):
-    conn = sqlite3.connect('interia.db')
+    conn = sqlite3.connect('forecast_data.db')
     c = conn.cursor()
 
     for element in data:

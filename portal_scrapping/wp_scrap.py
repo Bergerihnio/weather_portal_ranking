@@ -95,7 +95,7 @@ def weather_behavior_emoji(next_2_days_behavior, next_2_days_hour):
 
 def insert_into_db(emoji_list, next_2_days_temp, next_2_days_hour):
 
-    conn = sqlite3.connect('wp.db')
+    conn = sqlite3.connect('forecast_data.db')
     c = conn.cursor()
 
     for emoji, temp, time in zip(emoji_list, next_2_days_temp, next_2_days_hour):

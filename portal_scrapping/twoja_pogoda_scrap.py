@@ -77,7 +77,7 @@ def exctract_forecast_data(parse_json):
 
 
 def insert_to_db(data):
-    conn = sqlite3.connect('twoja_pogoda.db')
+    conn = sqlite3.connect('forecast_data.db')
     c = conn.cursor()
 
     for element in data:

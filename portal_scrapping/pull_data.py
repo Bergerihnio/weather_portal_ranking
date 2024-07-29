@@ -8,7 +8,6 @@ import sqlite3
 
 scheduler = BackgroundScheduler()
 
-
 @scheduler.scheduled_job('cron', hour=2, minute=1)
 def wp_pull_data():
     wp_scrap.scrap()
@@ -20,25 +19,17 @@ def others_pull_data():
 
 
 def download_data():
-
-    conn = sqlite3.connect('wp.db')
+    conn = sqlite3.connect('forecast_data.db')
     c = conn.cursor()
+
     c.execute(
         "SELECT temperature, emoji, time, date FROM wp WHERE date = date('now') ORDER BY date ASC")
     data_wp = c.fetchall()
     # print(f'WP prediction for date {date_wp} \n{data_wp}')
-    conn.close()
-
-    conn = sqlite3.connect('twoja_pogoda.db')
-    c = conn.cursor()
     c.execute(
         "SELECT temperature, emoji, time, date FROM twoja_pogoda WHERE date = date('now') ORDER BY date ASC")
     data_twoja_pogoda = c.fetchall()
     # print(f'\nTwoja Pogoda for date {date_twoja_pogoda} \n{data_twoja_pogoda}')
-    conn.close()
-
-    conn = sqlite3.connect('interia.db')
-    c = conn.cursor()
     c.execute(
         "SELECT temperature, emoji, time, date FROM interia WHERE date = date('now') ORDER BY date ASC")
     data_interia = c.fetchall()
@@ -64,7 +55,6 @@ def compare_data():
     # twoja_pogoda_temp = data_twoja_pogoda[hour_index][0]
     # twoja_pogoda_emoji = data_twoja_pogoda[hour_index][1]
 
-    # print(f'\nPrawdziwa Temperatura: {real_int_temp} \nPogoda: {real_emoji}  \nGodzina: { hour}\n')
 
     diff_interia_temp = abs(interia_temp - real_int_temp)
     diff_wp_temp = abs(wp_temp - real_int_temp)
@@ -121,19 +111,12 @@ def compare_data():
     conn.commit()
     conn.close
 
-    scoring(closest_source, closest_temperature, min_diff,
+    scoring(closest_source, min_diff,
             closest_source_name_emoji, closest_source_emoji)
 
-# create new db with scoring
 
-
-def scoring(closest_source: str, closest_temperature: int, min_diff: int, closest_source_name_emoji: str, closest_source_emoji: str):
+def scoring(closest_source: str, min_diff: int, closest_source_name_emoji: str, closest_source_emoji: str):
     points = 0
-    # print(f"Closest source: {closest_source}")
-    # print(f"Closest temperature: {closest_temperature}")
-    # print(f"Minimum difference: {min_diff}")
-    # print(f"Closest source name for emoji: {closest_source_name_emoji}")
-    # print(f"Closest source emoji: {closest_source_emoji}")
 
     conn = sqlite3.connect('general_scoring.db')
     c = conn.cursor()
@@ -156,7 +139,7 @@ def scoring(closest_source: str, closest_temperature: int, min_diff: int, closes
         points = 2
     elif min_diff == 5:
         points = 1
-    elif min_diff > 5 <= 8:
+    elif min_diff > 5 <= 8:   
         points = 0.5
     else:
         points = 0
