@@ -39,6 +39,10 @@ def scrap_data():
         case 'Zachmurzenie duże':
             behavior_title = '☁️'
         case 'Zachmurzenie małe':
+            if 4 <= hour < 21:
+                behavior_title = '☁️'
+            else:
+                behavior_title = '🌙'
             behavior_title = '☁️'
         case 'Zachmurzenie umiarkowane':
             behavior_title = '☁️'

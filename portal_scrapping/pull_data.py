@@ -38,7 +38,7 @@ def download_data():
 
     return data_interia, data_wp, data_twoja_pogoda
 
-@scheduler.scheduled_job('cron', minute='0')
+# @scheduler.scheduled_job('cron', minute='0')
 def compare_data():
     real_temp, real_emoji, hour = interia_actual_data.scrap_data()
     data_interia, data_wp, data_twoja_pogoda = download_data()
@@ -52,16 +52,17 @@ def compare_data():
     wp_temp = data_wp[hour_index][0]
     wp_emoji = data_wp[hour_index][1]
 
-    twoja_pogoda_temp = data_twoja_pogoda[hour_index][0]
-    twoja_pogoda_emoji = data_twoja_pogoda[hour_index][1]
+
+    # twoja_pogoda_temp = data_twoja_pogoda[hour_index][0]
+    # twoja_pogoda_emoji = data_twoja_pogoda[hour_index][1]
 
     # print(f'\nPrawdziwa Temperatura: {real_int_temp} \nPogoda: {real_emoji}  \nGodzina: { hour}\n')
 
     diff_interia_temp = abs(interia_temp - real_int_temp)
     diff_wp_temp = abs(wp_temp - real_int_temp)
-    diff_twoja_pogoda_temp = abs(twoja_pogoda_temp - real_int_temp)
+    # diff_twoja_pogoda_temp = abs(twoja_pogoda_temp - real_int_temp)
 
-    min_diff = min(diff_interia_temp, diff_wp_temp, diff_twoja_pogoda_temp)
+    min_diff = min(diff_interia_temp, diff_wp_temp)#,diff_twoja_pogoda_temp)
 
     closest_sources = []
     if diff_interia_temp == min_diff:
@@ -70,9 +71,9 @@ def compare_data():
     if diff_wp_temp == min_diff:
         closest_sources.append("WP")
         closest_temperature = wp_temp
-    if diff_twoja_pogoda_temp == min_diff:
-        closest_sources.append("Twoja pogoda")
-        closest_temperature = twoja_pogoda_temp
+    # if diff_twoja_pogoda_temp == min_diff:
+    #     closest_sources.append("Twoja pogoda")
+    #     closest_temperature = twoja_pogoda_temp
 
     if len(closest_sources) == 1:
         closest_source = closest_sources[0]
@@ -89,16 +90,19 @@ def compare_data():
     if real_emoji == wp_emoji:
         closest_sources_emoji.append(wp_emoji)
         closest_sources_name_emoji.append('WP')
-    if real_emoji == twoja_pogoda_emoji:
-        closest_sources_emoji.append(twoja_pogoda_emoji)
-        closest_sources_name_emoji.append('Twoja pogoda')
+    # if real_emoji == twoja_pogoda_emoji:
+    #     closest_sources_emoji.append(twoja_pogoda_emoji)
+    #     closest_sources_name_emoji.append('Twoja pogoda')
 
     if len(closest_sources_emoji) == 1 and len(closest_sources_name_emoji) == 1:
         closest_source_emoji = closest_sources_emoji[0]
         closest_source_name_emoji = closest_sources_name_emoji[0]
+    elif len(closest_sources_emoji) > 1 and len(closest_sources_name_emoji) > 1:
+        closest_source_emoji = ", ".join(closest_sources_emoji)
+        closest_source_name_emoji = ", ".join(closest_sources_name_emoji)
     else:
-        closest_source_emoji = ", ".join(closest_sources_emoji[:len(closest_sources_emoji)])
-        closest_source_name_emoji = ", ".join(closest_sources_name_emoji[:len(closest_sources_emoji)])
+        closest_source_emoji = "❌"
+        closest_source_name_emoji = "❌"
         
     conn = sqlite3.connect('general_scoring.db')
     c = conn.cursor()
@@ -113,33 +117,69 @@ def compare_data():
 # create new db with scoring
 def scoring(closest_source: str, closest_temperature: int, min_diff: int, closest_source_name_emoji: str, closest_source_emoji: str):
     
-    print(f"Closest source: {closest_source}")
-    print(f"Closest temperature: {closest_temperature}")
-    print(f"Minimum difference: {min_diff}")
-    print(f"Closest source name for emoji: {closest_source_name_emoji}")
-    print(f"Closest source emoji: {closest_source_emoji}")
+    # print(f"Closest source: {closest_source}")
+    # print(f"Closest temperature: {closest_temperature}")
+    # print(f"Minimum difference: {min_diff}")
+    # print(f"Closest source name for emoji: {closest_source_name_emoji}")
+    # print(f"Closest source emoji: {closest_source_emoji}")
+    
+    conn = sqlite3.connect('general_scoring.db')
+    c = conn.cursor()
 
-    sources_list = closest_source.split(',')
-    sources_list_len = 
+    wp_scoring = 0
+    interia_scoring = 0
+    twoja_pogoda_scoring = 0
+    points = 0
+    
+    if min_diff == 0:
+        points = 10
+    elif min_diff == 1:
+        points = 8
+    elif min_diff == 2:
+        points = 6
+    elif min_diff == 3:
+        points = 4
+    elif min_diff == 4:
+        points = 2
+    elif min_diff == 5:
+        points = 1 
+    elif min_diff > 5 <= 8:
+        points = 0.5
+    else:
+        points = 0
 
-    # conn = sqlite3.connect('general_scoring.db')
-    # c = conn.cursor()
-    # c.execute("INSERT INTO scoring () VALUES ()", ())
 
-    # conn.commit()
-    # conn.close
+    sources_list = closest_source.split(', ')
+    sources_list_len = len(sources_list)
+
+    for i in range(sources_list_len):
+        print(sources_list[i])
+        if sources_list[i] == 'WP':
+            wp_scoring += points
+        elif sources_list[i] == 'Twoja pogoda':
+            twoja_pogoda_scoring += points
+        elif sources_list[i] == 'Interia':
+            interia_scoring += points
+        else:
+            print("No portal is accurate")
+            return
+
+    c.execute("INSERT INTO scoring (wp_scoring, interia_scoring, twoja_pogoda_scoring) VALUES (?, ?, ?)", (wp_scoring, interia_scoring, twoja_pogoda_scoring))
+
+    conn.commit()
+    conn.close
 
     return
 
-
 scheduler.start()
 
-# compare_data()
+compare_data()
+
 
 try:
     while True:
         time.sleep(60)  
 except (KeyboardInterrupt):
     scheduler.shutdown()
-    print("Scheduler shut down successfully.")
+    print("Scheduler shutdown successfully.")
 
