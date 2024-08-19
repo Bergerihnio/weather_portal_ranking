@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import requests, sys, re, sqlite3
+import interia_actual_data
 
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -45,7 +46,10 @@ def scrap():
     insert_into_db(emoji_list, next_2_days_temp, next_2_days_hour)
 
 def weather_behavior_emoji(next_2_days_behavior, next_2_days_hour):
+
     emoji_list = []
+    sunrise_time, sunset_time = interia_actual_data.sunrise_sunset()
+
     for behavior, hour in zip(next_2_days_behavior, next_2_days_hour):
 
         int_hour = int(hour[:2])
@@ -58,12 +62,12 @@ def weather_behavior_emoji(next_2_days_behavior, next_2_days_hour):
             case 'Zachmurzenie umiarkowane':
                 emoji = '🌥️'
             case 'Prawie bezchmurnie':
-                if 4 <= int_hour < 21:
+                if sunrise_time <= sunset_time < 21:
                     emoji = '🌤️'
                 else:
                     emoji = '🌙'
             case 'Bezchmurnie, słonecznie':
-                if 4 <= int_hour < 21:
+                if sunrise_time <= sunset_time < 21:
                     emoji = '☀️'
                 else:
                     emoji = '🌙'

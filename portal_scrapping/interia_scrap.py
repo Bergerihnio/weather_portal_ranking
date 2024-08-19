@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import sys
 import sqlite3
+import interia_actual_data
 
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -53,6 +54,8 @@ def scrap_behavior(soup, hours_list):
 
     list_behave = []
 
+    sunrise_time, sunset_time = interia_actual_data.sunrise_sunset()
+
     for index, title in enumerate(find_behave):
         title_text = title.get('title')
         hour_str = hours_list[index]
@@ -68,7 +71,7 @@ def scrap_behavior(soup, hours_list):
             case 'Przejściowe zachmurzenie':
                 title_text = '🌥️'
             case 'Bezchmurnie':
-                if (int_hour >= 4) and (int_hour < 21):
+                if (sunrise_time >= 4) and (sunset_time < 21):
                     title_text = '☀️'
                 else:
                     title_text = '🌙'

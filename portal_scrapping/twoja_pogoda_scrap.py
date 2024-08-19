@@ -1,6 +1,7 @@
 import requests
 import json
 import sqlite3
+import interia_actual_data
 from datetime import datetime, timedelta
 
 # Due twojapogoda portal architecture we must run this program beetween 1-9 PM
@@ -35,6 +36,8 @@ def exctract_forecast_data(parse_json):
 
     data = []
 
+    sunrise_time, sunset_time = interia_actual_data.sunrise_sunset()
+
     for element in forecast:
         forecast_time = element['name']
 
@@ -56,7 +59,7 @@ def exctract_forecast_data(parse_json):
             case 'zachmurzenie umiarkowane':
                 forecast_behavior = '⛅'
             case 'bezchmurnie':
-                if (int_forecast_time >= 4) and (int_forecast_time < 21):
+                if (sunrise_time >= 4) and (sunset_time < 21):
                     forecast_behavior = '☀️'
                 else:
                     forecast_behavior = '🌙'
