@@ -1,7 +1,7 @@
 import requests
 import json
 import sqlite3
-import interia_actual_data
+import sunrise_sunset
 from datetime import datetime, timedelta
 
 # Due twojapogoda portal architecture we must run this program beetween 1-9 PM
@@ -36,7 +36,7 @@ def exctract_forecast_data(parse_json):
 
     data = []
 
-    sunrise_time, sunset_time = interia_actual_data.sunrise_sunset()
+    interia_sunrise_formatted, interia_sunset_formatted = sunrise_sunset.time()
 
     for element in forecast:
         forecast_time = element['name']

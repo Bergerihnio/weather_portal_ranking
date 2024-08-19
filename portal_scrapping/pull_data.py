@@ -14,7 +14,7 @@ def wp_pull_data():
     print('pomyślnie zapisano wp')
     
 
-@scheduler.scheduled_job('cron', hour=13, minute=2)
+@scheduler.scheduled_job('cron', hour=21, minute=13)
 def others_pull_data():
     twoja_pogoda_scrap.scrap()
     interia_scrap.scrap()

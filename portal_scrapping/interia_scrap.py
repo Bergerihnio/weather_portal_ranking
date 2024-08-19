@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import sys
 import sqlite3
-import interia_actual_data
+import sunrise_sunset
 
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -54,7 +54,7 @@ def scrap_behavior(soup, hours_list):
 
     list_behave = []
 
-    sunrise_time, sunset_time = interia_actual_data.sunrise_sunset()
+    sunrise_time, sunset_time = sunrise_sunset.time()
 
     for index, title in enumerate(find_behave):
         title_text = title.get('title')
