@@ -90,6 +90,8 @@ def scrap_behavior(soup, hours_list):
                 title_text = '⛈️'
             case 'Częściowo słonecznie i burze z piorunami':
                 title_text = '⛈️'
+            case 'Zamglenia':
+                title_text = '☁️'
             case _:
                 title_text = '❓'
 

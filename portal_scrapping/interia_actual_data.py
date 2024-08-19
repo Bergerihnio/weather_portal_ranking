@@ -56,6 +56,8 @@ def scrap_data():
             behavior_title = '⛈️'
         case 'Częściowo słonecznie i burze z piorunami':
             behavior_title = '⛈️'
+        case 'Zamglenia':
+            behavior_title = '☁️'
         case _:
             behavior_title = '❓'
 
