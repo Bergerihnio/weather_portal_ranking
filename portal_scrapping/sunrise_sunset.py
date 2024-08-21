@@ -20,7 +20,7 @@ def time():
     interia_sunrise_formatted = interia_sunrise[:2]
     interia_sunset_formatted = interia_sunset[:2]
 
-    return interia_sunrise_formatted, interia_sunset_formatted
+    return int(interia_sunrise_formatted), int(interia_sunset_formatted)
 
 if __name__ == '__main__':
     time()
